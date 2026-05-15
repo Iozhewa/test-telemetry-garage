@@ -35,10 +35,12 @@ def test_{snakecasedSensorName}():
     print(f"{sensorPlainName}:", result)
     assert result == 14, "Expected 14, got " + result
 """
+mainCode = '''if __name__ == "__main__":\n\t{tests}\n\tprint()'''
 
 def access_sensor_table(filepath:str, linesIgnored:int=0) -> csv.DictReader:
     """
     Safe Handling of CSV copy of Sensor_Status_Tracker
+    
     Expects:
         filepath - Readable, CSV-formatted sensor table
         linesIgnored - How many CSV lines before fields
@@ -60,6 +62,7 @@ def access_sensor_table(filepath:str, linesIgnored:int=0) -> csv.DictReader:
 def filter_connected_sensors(reader:csv.DictReader) -> list[dict[str, str]]:
     """
     Outputs sensor dictionary list to match template f-strings
+    
     Expects:
         reader - DictReader object from access_sensor_table()
     Returns:
@@ -76,6 +79,7 @@ def madlib_parser_functions(reader:list[dict[str, str]]) -> set[tuple[str]]:
     """
     To be used in an iterative process of filling in the blanks of the template f-strings
     Once filled, the 'madlibbed parser' is treated as code to be written
+    
     Expects:
         reader - Dictionary List from filter_connected_sensors()
     Returns:
@@ -83,7 +87,7 @@ def madlib_parser_functions(reader:list[dict[str, str]]) -> set[tuple[str]]:
     """
     functions = set()
     snakecaser = lambda name: name.casefold().replace(' ', '_')
-    trimmer = lambda txt: ''.join([char for char in txt if char.casefold() in "abcdefghijklmnopqrstuvwxyz "])
+    trimmer = lambda txt: ''.join([char for char in txt if char.casefold() in "abcdefghijklmnopqrstuvwxyz "]).strip()
     for entry in reader:
         parser = parser_template.format(
             snakecasedSensorName = snakecaser(trimmer(entry["Full Name"])),
@@ -99,25 +103,53 @@ def madlib_parser_functions(reader:list[dict[str, str]]) -> set[tuple[str]]:
         functions.add((parser,tester))
     return functions
 
-def dump_functional_code():
-    #  From a File Handling perspective, appending functional code without organization is nice and easy
-    #  This is the super-awesome function that sees a parser_product Python file get coded automatically
-    pass
-def classify_parsers():
+def dump_functional_code(functions:set[tuple[str]]) -> None:
+    """
+    From a File Handling perspective, appending functional code without organization is nice and easy
+    This is the super-awesome function that sees a parser_product Python file get coded automatically
+    
+    Expects:
+        functions - Set of String-Tuples from madlib_parser_functions
+    Returns:
+        nothing
+    Effect:
+        Creates or Overwrites parser_product.py with parse/testing functions for each connected sensor
+    """
+    try:
+        with open(parser_draft, 'w') as obj:
+            testFunctions = []
+            from time import sleep as ts
+            ts(1.0)
+            for i, (parser, tester) in enumerate(functions):
+                obj.write(parser)
+                obj.write(tester)
+                testFunctions.append(tester[len("def  "):tester.index(':')])
+                print(f"  Uploaded: [{i}/{len(functions)}]")
+                ts(0.5)
+            footer = mainCode.format(tests = '\n\t'.join(testFunctions))
+            obj.write('\n'+footer)
+    except FileNotFoundError:
+        print("parser_factory could not find file {parser_draft}. Try redefining global variable.")
+    except Exception as e:
+        print("parser_factory encountered error:", e)
+
+def classify_parsers() -> None:
     #  From a further development perspective, appending functional code without organization sucks
     #  This is the super-awesome function that formats a parser_product Python file into a parser_module
     #  that was coded automatically (notice that was done for method [1] of completing Task A)
     pass
 
 if __name__ == "__main__":
+    print(".\nparser_factory: producing code snippets...")
     sensors = access_sensor_table(sensor_table, linesIgnored=6)
     viable = filter_connected_sensors(sensors)
     func_code = madlib_parser_functions(viable)
     with open(sensor_table, 'r') as obj:
         lines = obj.readlines()
     count = len(lines)-8
-    print(f"Tabled Sensors: {count}")
-    print(f"Connected Sensors: {len(viable)}")
-    print(f"Code Snippets creaed: {len(func_code)}")
-    #dump_functional_code(func_code)  # type signature tba
+    print(f"  Tabled Sensors: {count}")
+    print(f"  Connected Sensors: {len(viable)}")
+    print(f"  Code Snippets created: {len(func_code)}")
+    dump_functional_code(func_code)
+    print("Functional code dump complete.")
     #classify_parsers()  # probably just a generator, I find it satisfying this way
