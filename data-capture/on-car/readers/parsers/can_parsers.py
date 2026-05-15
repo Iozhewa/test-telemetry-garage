@@ -273,3 +273,55 @@ def test_knock():
     result = parse_knock(testBytes)
     print(f"Detonation Frequency: {round(result, 2)} radians per second")
     assert round(result, 2) == round(6000/(2*3.14159), 2), f"Result was {result} and not ~{round(6000/(2*3.14159), 2)}"
+
+def parse_turbo_boost(data:bytes) -> float:
+    """
+    Turbo Boost Parser (for TURBO)
+    Expects _ bytes. Returns bar.
+    https://autoditex.com/page/boost-pressure-sensor-bps-24-1.html
+
+    Verify against ECU datasheet
+    """
+    raw = data[0]
+    toBar = lambda psi: psi / 14.504
+    standard = toBar(raw)
+    return standard
+def test_turbo_boost():
+    testBytes = bytes([70, 84])
+    result = parse_brake_pressure(testBytes)
+    print(f"Turbo Boost: {round(result, 2)} bar")
+    assert round(result) == 5.0, f"Result was {round(result, 2)} and not ~1"
+
+def parse_gas(data:bytes) -> float:
+    """
+    Gas Parser (for GS)
+    Expects _ bytes. Returns percent volume from ppm.
+    https://www.rhopointcomponents.com/resources/engineering-calculators/ppm-to-percent-converter/
+
+    Verify against ECU datasheet
+    """
+    raw = data[0]
+    toPercentVol = lambda ppm: ppm / 10_000
+    standard = toPercentVol(raw)
+    return standard
+def test_gas():
+    testBytes = bytes([5, 6])
+    result = parse_gas(testBytes)
+    print(f"Gas: {result}%")
+    assert result == 5 / 10_000, f"Result was {result} and not {5 / 10_000}"
+
+def parse_quickshifter(data:bytes) -> float:
+    """
+    Quickshifter Parser (for QS)
+    Expects _ bytes. Returns detected quickshifter use(?).
+    https://www.apriliaforum.com/forums/showthread.php?371844-Anatomy-of-a-quickshifter-sensor
+
+    Verify against ECU datasheet
+    """
+    raw = data[0]
+    return raw  # Conversion requirement unknown
+def test_quickshifter():
+    testBytes = bytes([0, 1])
+    result = parse_crankshaft_position(testBytes)
+    print(f"Quickshifter in Use: {result}")
+    assert result == 0, f"Result was {result} and not 0"
