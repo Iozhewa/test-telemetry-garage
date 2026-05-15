@@ -169,3 +169,57 @@ def test_oil_pressure():
     result = parse_oil_pressure(testBytes)
     print(f"Brake Pressure: {round(result, 2)} bar")
     assert round(result) == 2.0, f"Result was {round(result, 2)} and not ~2"
+
+def parse_engine_coolant_temp(data:bytes) -> float:
+    """
+    Engine Coolant Parser (for ECT)
+    Expects _ bytes. Returns Kelvin.
+    https://autoditex.com/page/engine-coolant-temperature-sensor-ect-13-1.html
+
+    Verify against ECU datasheet
+    """
+    raw = data[0]
+    toKelvin = lambda celsius: celsius + 273.15
+    standard = toKelvin(raw)
+    return standard
+def test_engine_coolant_temp():
+    testBytes = bytes([20, 30])
+    result = parse_engine_coolant_temp(testBytes)
+    print(f"Engine Coolant Temperature: {round(result, 2)} Kelvin")
+    assert round(result, 2) == 293.15, f"Result was {round(result, 2)} and not ~293.15"
+
+def parse_fuel_pressure(data:bytes) -> float:
+    """
+    Fuel Pressure Parser (for FPS)
+    Expects _ bytes. Returns bar.
+    https://support.haltech.com/portal/en/kb/articles/fuel-pressure-sensor-and-diagnosis
+
+    Verify against ECU datasheet
+    """
+    raw = data[0]
+    toBar = lambda psi: psi / 14.504
+    standard = toBar(raw)
+    return standard
+def test_fuel_pressure():
+    testBytes = bytes([42, 56])
+    result = parse_fuel_pressure(testBytes)
+    print(f"Brake Pressure: {round(result, 2)} bar")
+    assert round(result) == 3.0, f"Result was {round(result, 2)} and not ~3"
+
+def parse_manifold_absolute_pressure(data:bytes) -> float:
+    """
+    Manifold Absolute Pressure Parser (for MAP)
+    Expects _ bytes. Returns bar.
+    https://autoditex.com/page/manifold-absolute-pressure-sensor-map-sensor-20-1.html
+
+    Verify against ECU datasheet
+    """
+    raw = data[0]
+    toBar = lambda psi: psi / 14.504
+    standard = toBar(raw)
+    return standard
+def test_manifold_absolute_pressure():
+    testBytes = bytes([56, 70])
+    result = parse_manifold_absolute_pressure(testBytes)
+    print(f"Brake Pressure: {round(result, 2)} bar")
+    assert round(result) == 4.0, f"Result was {round(result, 2)} and not ~4"
