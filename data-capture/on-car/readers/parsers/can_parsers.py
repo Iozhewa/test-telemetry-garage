@@ -325,3 +325,42 @@ def test_quickshifter():
     result = parse_crankshaft_position(testBytes)
     print(f"Quickshifter in Use: {result}")
     assert result == 0, f"Result was {result} and not 0"
+
+def parse_lambda_to_can(data:bytes) -> float:
+    """
+    Lambda-to-CAN Parser (for LTC)
+    Expects _ bytes. Returns level of oxygen in exhaust gases.
+    https://linkecu.com/tech-articles/can-lambda-explained/
+
+    Verify against ECU datasheet
+    """
+    raw = data[0]
+    toDecimal = lambda percent: percent / 100
+    standard = toDecimal(raw)
+    return standard
+def test_lambda_to_can():
+    testBytes = bytes([65, 98])
+    result = parse_lambda_to_can(testBytes)
+    print(f"Lambda: {result}")
+    assert result == 0.65, f"Result was {result} and not 0.65"
+
+if __name__ == "__main__":
+    test_brake_pressure()
+    test_accelerator_pedal_position()
+    test_steering_angle()
+    test_suspension_potentiometer()
+    test_wheel_speed()
+    test_intake_air_temp()
+    test_ambient_air_temp()
+    test_oil_pressure()
+    test_engine_coolant_temp()
+    test_fuel_pressure()
+    test_manifold_absolute_pressure()
+    test_camshaft_position()
+    test_crankshaft_position()
+    test_knock()
+    test_turbo_boost()
+    test_gas()
+    test_quickshifter()
+    test_lambda_to_can()
+    print()
