@@ -70,16 +70,39 @@ def filter_connected_sensors(reader:csv.DictReader) -> list[dict[str, str]]:
         connectStatus = set((entry["Present on Car"], entry["Connected to IMU"]))
         if connectStatus.issubset({"Yes", "Partial"}):
             filteredReader.append(entry)
-    from time import sleep as ts
-    for entry in filteredReader:
-        print(entry)
-        ts(0.1)
     return filteredReader
 
 def madlib_parser_functions(reader:list[dict[str, str]]) -> set[tuple[str]]:
-    #  To be used in an iterative process of filling in the blanks of the template f-strings
-    #  Once filled, the 'madlibbed parser' is treated as code to be written
-    pass
+    """
+    To be used in an iterative process of filling in the blanks of the template f-strings
+    Once filled, the 'madlibbed parser' is treated as code to be written
+    Expects:
+        something
+    Returns:
+        something
+    """
+    functions = set()
+    snakecaser = lambda name: name.casefold().replace(' ', '_')
+    trimmer = lambda txt: ''.join([char for char in txt if char.casefold() in "abcdefghijklmnopqrstuvwxyz "])
+    for entry in reader:
+        parser = parser_template.format(
+            snakecasedSensorName = snakecaser(trimmer(entry["Full Name"])),
+            sensorPlainName = trimmer(entry["Full Name"]),
+            sensorAbbrev = trimmer(entry["Acronym"]),
+            sensorDescription = "unit TBA"
+        )
+        tester = tester_template.format(
+            snakecasedSensorName = snakecaser(trimmer(entry["Full Name"])),
+            sensorPlainName = trimmer(entry["Full Name"]),
+            sensorParser = f"parse_{snakecaser(trimmer(entry["Full Name"]))}"
+        )
+        functions.add((parser,tester))
+    from time import sleep as ts
+    for function in functions:
+        print(function[0])
+        ts(0.3)
+        print(function[1])
+        ts(0.3)
 def dump_functional_code():
     #  From a File Handling perspective, appending functional code without organization is nice and easy
     #  This is the super-awesome function that sees a parser_product Python file get coded automatically
@@ -93,6 +116,6 @@ def classify_parsers():
 if __name__ == "__main__":
     sensors = access_sensor_table(sensor_table, linesIgnored=6)
     viable = filter_connected_sensors(sensors)
-    #func_code = madlib_parser_functions(viable)
+    func_code = madlib_parser_functions(viable)
     #dump_functional_code(func_code)  # type signature tba
     #classify_parsers()  # probably just a generator, I find it satisfying this way
