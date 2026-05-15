@@ -12,8 +12,8 @@ Two ways of completing Task A
 import csv
 from io import StringIO
 
-sensor_table:str = "Sensor_Status_Tracker.csv"
-parser_draft:str = "parser_product.py"
+sensor_table:str = "data-capture/on-car/readers/parsers/Sensor_Status_Tracker.csv"
+parser_draft:str = "data-capture/on-car/readers/parsers/parser_product.py"
 parser_template:str = """
 def parse_{snakecasedSensorName}(data:bytes) -> float:
     '''
@@ -36,11 +36,31 @@ def test_{snakecasedSensorName}():
     assert result == 14, "Expected 14, got " + result
 """
 
-def access_sensor_table(filepath:str, linesIgnored:int) -> csv.DictReader:
-    #  Safe Handling of CSV copy of Sensor_Status_Tracker
-    #  provide .csv for automated parser creation
-    #  Outputs a CSV entry list containing the headers and sensor rows; nothing else
-    pass
+def access_sensor_table(filepath:str, linesIgnored:int=0) -> csv.DictReader:
+    """
+    Safe Handling of CSV copy of Sensor_Status_Tracker
+    Expects:
+        filepath - Readable, CSV-formatted sensor table
+        linesIgnored - How many CSV lines before fields
+    Outputs: 
+        CSV entry list containing just the headers and sensor rows
+    """
+    try:
+        with open(filepath, 'r') as obj:
+            lines = obj.readlines()
+    except FileNotFoundError:
+        print("parser_factory could not find file {sensor_table}. Try redefining global variable.")
+    except Exception as e:
+        print("parser_factory encountered error:", e)
+    else:
+        trimmedCSV:str = ''.join(lines[linesIgnored:])
+        reader = csv.DictReader(StringIO(trimmedCSV))
+        from time import sleep as ts
+        for entry in reader:
+            print(entry)
+            ts(0.1)
+        return reader
+
 def filter_connected_sensors(reader:csv.DictReader) -> list[dict[str, str]]:
     #  Outputs sensor dictionary list to match template f-strings
     #  CSV entry joins sensor dictionary if IMU-connected cell states 'Yes' or 'Partial'
@@ -60,8 +80,8 @@ def classify_parsers():
     pass
 
 if __name__ == "__main__":
-    sensors = access_sensor_table(sensor_table, linesIgnored=0)
-    viable = filter_connected_sensors(sensors)
-    func_code = madlib_parser_functions(viable)
-    dump_functional_code(func_code)  # type signature tba
-    classify_parsers()  # probably just a generator, I find it satisfying this way
+    sensors = access_sensor_table(sensor_table, linesIgnored=6)
+    #viable = filter_connected_sensors(sensors)
+    #func_code = madlib_parser_functions(viable)
+    #dump_functional_code(func_code)  # type signature tba
+    #classify_parsers()  # probably just a generator, I find it satisfying this way
