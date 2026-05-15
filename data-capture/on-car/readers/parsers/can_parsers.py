@@ -115,3 +115,57 @@ def test_wheel_speed():
     result = parse_wheel_speed(testBytes)
     print(f"Wheel Speed: {round(result, 2)} m/s")
     assert round(result, 3) == round(0.277778, 3), f"Result was {round(result, 3)} and not ~{round(0.277778, 3)}"
+
+def parse_intake_air_temp(data:bytes) -> float:
+    """
+    Intake Air Temperature Parser (for IAT)
+    Expects _ bytes. Returns Kelvin.
+    https://premierautotrade.com.au/news/intake-air-temperature-sensors.php
+
+    Verify against ECU datasheet
+    """
+    raw = data[0]
+    toKelvin = lambda celsius: celsius + 273.15
+    standard = toKelvin(raw)
+    return standard
+def test_intake_air_temp():
+    testBytes = bytes([0, 10])
+    result = parse_intake_air_temp(testBytes)
+    print(f"Intake Air Temperature: {round(result, 2)} Kelvin")
+    assert round(result, 2) == 273.15, f"Result was {round(result, 2)} and not ~273.15"
+
+def parse_ambient_air_temp(data:bytes) -> float:
+    """
+    Ambient Air Temperature Parser (for AMB)
+    Expects _ bytes. Returns Kelvin.
+    https://www.innova.com/blogs/fix-advices/understanding-the-ambient-temperature-sensor?srsltid=AfmBOorjtpH8TCLyBXSzgSRheK6KPQmtDmIlf7uAL4GIG27tNG5kWpPO
+
+    Verify against ECU datasheet
+    """
+    raw = data[0]
+    toKelvin = lambda celsius: celsius + 273.15
+    standard = toKelvin(raw)
+    return standard
+def test_ambient_air_temp():
+    testBytes = bytes([10, 20])
+    result = parse_ambient_air_temp(testBytes)
+    print(f"Ambient Air Temperature: {round(result, 2)} Kelvin")
+    assert round(result, 2) == 283.15, f"Result was {round(result, 2)} and not ~283.15"
+
+def parse_oil_pressure(data:bytes) -> float:
+    """
+    Oil Pressure Parser (for OIL)
+    Expects _ bytes. Returns bar.
+    https://cdsentec.com/pressure-oil-sensors/
+
+    Verify against ECU datasheet
+    """
+    raw = data[0]
+    toBar = lambda psi: psi / 14.504
+    standard = toBar(raw)
+    return standard
+def test_oil_pressure():
+    testBytes = bytes([28, 42])
+    result = parse_oil_pressure(testBytes)
+    print(f"Brake Pressure: {round(result, 2)} bar")
+    assert round(result) == 2.0, f"Result was {round(result, 2)} and not ~2"
