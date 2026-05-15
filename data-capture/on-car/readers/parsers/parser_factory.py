@@ -42,7 +42,7 @@ def access_sensor_table(filepath:str, linesIgnored:int=0) -> csv.DictReader:
     Expects:
         filepath - Readable, CSV-formatted sensor table
         linesIgnored - How many CSV lines before fields
-    Outputs: 
+    Returns: 
         CSV entry list containing just the headers and sensor rows
     """
     try:
@@ -53,18 +53,29 @@ def access_sensor_table(filepath:str, linesIgnored:int=0) -> csv.DictReader:
     except Exception as e:
         print("parser_factory encountered error:", e)
     else:
-        trimmedCSV:str = ''.join(lines[linesIgnored:])
+        trimmedCSV = ''.join(lines[linesIgnored:])
         reader = csv.DictReader(StringIO(trimmedCSV))
-        from time import sleep as ts
-        for entry in reader:
-            print(entry)
-            ts(0.1)
         return reader
 
 def filter_connected_sensors(reader:csv.DictReader) -> list[dict[str, str]]:
-    #  Outputs sensor dictionary list to match template f-strings
-    #  CSV entry joins sensor dictionary if IMU-connected cell states 'Yes' or 'Partial'
-    pass
+    """
+    Outputs sensor dictionary list to match template f-strings
+    Expects:
+        reader: DictReader object from access_sensor_table()
+    Returns:
+        Dictionary of CSV entries where connection cells state 'Yes' or 'Partial'
+    """
+    filteredReader = []
+    for entry in reader:
+        connectStatus = set((entry["Present on Car"], entry["Connected to IMU"]))
+        if connectStatus.issubset({"Yes", "Partial"}):
+            filteredReader.append(entry)
+    from time import sleep as ts
+    for entry in filteredReader:
+        print(entry)
+        ts(0.1)
+    return filteredReader
+
 def madlib_parser_functions(reader:list[dict[str, str]]) -> set[tuple[str]]:
     #  To be used in an iterative process of filling in the blanks of the template f-strings
     #  Once filled, the 'madlibbed parser' is treated as code to be written
@@ -81,7 +92,7 @@ def classify_parsers():
 
 if __name__ == "__main__":
     sensors = access_sensor_table(sensor_table, linesIgnored=6)
-    #viable = filter_connected_sensors(sensors)
+    viable = filter_connected_sensors(sensors)
     #func_code = madlib_parser_functions(viable)
     #dump_functional_code(func_code)  # type signature tba
     #classify_parsers()  # probably just a generator, I find it satisfying this way
