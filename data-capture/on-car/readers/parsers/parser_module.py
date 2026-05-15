@@ -222,9 +222,97 @@ class ParsePackage:
         return standard
 
 class TestPackage:
-    pass
+    def brake_pressure():
+        testBytes = bytes([14, 28])
+        result = ParsePackage.brake_pressure(testBytes)
+        print(f"Brake Pressure: {round(result, 2)} bar")
+        assert round(result) == 1.0, f"Result was {round(result, 2)} and not ~1"
+    def accelerator_pedal_position():
+        testBytes = bytes([1, 3])
+        result = ParsePackage.accelerator_pedal_position(testBytes)
+        print(f"Accelerator Pedal Position: {round(result, 2)}%")
+        assert round(result) == 20.0, f"Result was {round(result, 2)} and not ~20"
+    def steering_angle():
+        testBytes = bytes([45, 90])
+        result = ParsePackage.steering_angle(testBytes)
+        print(f"Steering Angle: {round(result, 2)} turn")
+        assert result == 0.125, f"Result was {round(result, 3)} and not ~0.125"
+    def suspension_potentiometer():
+        testBytes = bytes([10, 20])
+        result = ParsePackage.suspension_potentiometer(testBytes)
+        print(f"Suspension Potentiometer: {round(result, 2)} cm")
+        assert result == 1.0, f"Result was {round(result, 2)} and not ~0.1"
+    def wheel_speed():
+        testBytes = bytes([1, 10])
+        result = ParsePackage.wheel_speed(testBytes)
+        print(f"Wheel Speed: {round(result, 2)} m/s")
+        assert round(result, 3) == round(0.277778, 3), f"Result was {round(result, 3)} and not ~{round(0.277778, 3)}"
+    def intake_air_temp():
+        testBytes = bytes([0, 10])
+        result = ParsePackage.intake_air_temp(testBytes)
+        print(f"Intake Air Temperature: {round(result, 2)} Kelvin")
+        assert round(result, 2) == 273.15, f"Result was {round(result, 2)} and not ~273.15"
+    def ambient_air_temp():
+        testBytes = bytes([10, 20])
+        result = ParsePackage.ambient_air_temp(testBytes)
+        print(f"Ambient Air Temperature: {round(result, 2)} Kelvin")
+        assert round(result, 2) == 283.15, f"Result was {round(result, 2)} and not ~283.15"
+    def oil_pressure():
+        testBytes = bytes([28, 42])
+        result = ParsePackage.oil_pressure(testBytes)
+        print(f"Brake Pressure: {round(result, 2)} bar")
+        assert round(result) == 2.0, f"Result was {round(result, 2)} and not ~2"
+    def engine_coolant_temp():
+        testBytes = bytes([20, 30])
+        result = ParsePackage.engine_coolant_temp(testBytes)
+        print(f"Engine Coolant Temperature: {round(result, 2)} Kelvin")
+        assert round(result, 2) == 293.15, f"Result was {round(result, 2)} and not ~293.15"
+    def fuel_pressure():
+        testBytes = bytes([42, 56])
+        result = ParsePackage.fuel_pressure(testBytes)
+        print(f"Brake Pressure: {round(result, 2)} bar")
+        assert round(result) == 3.0, f"Result was {round(result, 2)} and not ~3"
+    def manifold_absolute_pressure():
+        testBytes = bytes([56, 70])
+        result = ParsePackage.manifold_absolute_pressure(testBytes)
+        print(f"Brake Pressure: {round(result, 2)} bar")
+        assert round(result) == 4.0, f"Result was {round(result, 2)} and not ~4"
+    def camshaft_position():
+        testBytes = bytes([1, 0])
+        result = ParsePackage.camshaft_position(testBytes)
+        print(f"Camshaft Position: Cylinder {result}")
+        assert result == 1, f"Result was {result} and not 1"
+    def crankshaft_position():
+        testBytes = bytes([2, 0])
+        result = ParsePackage.crankshaft_position(testBytes)
+        print(f"Crankshaft Position: {result}")
+        assert result == 2, f"Result was {result} and not 2"
+    def knock():
+        testBytes = bytes([6, 15])
+        result = ParsePackage.knock(testBytes)
+        print(f"Detonation Frequency: {round(result, 2)} radians per second")
+        assert round(result, 2) == round(6000/(2*3.14159), 2), f"Result was {result} and not ~{round(6000/(2*3.14159), 2)}"
+    def turbo_boost():
+        testBytes = bytes([70, 84])
+        result = ParsePackage.brake_pressure(testBytes)
+        print(f"Turbo Boost: {round(result, 2)} bar")
+        assert round(result) == 5.0, f"Result was {round(result, 2)} and not ~1"
+    def gas():
+        testBytes = bytes([5, 6])
+        result = ParsePackage.gas(testBytes)
+        print(f"Gas: {result}%")
+        assert result == 5 / 10_000, f"Result was {result} and not {5 / 10_000}"
+    def quickshifter():
+        testBytes = bytes([0, 1])
+        result = ParsePackage.crankshaft_position(testBytes)
+        print(f"Quickshifter in Use: {result}")
+        assert result == 0, f"Result was {result} and not 0"
+    def lambda_to_can():
+        testBytes = bytes([65, 98])
+        result = ParsePackage.lambda_to_can(testBytes)
+        print(f"Lambda: {result}")
+        assert result == 0.65, f"Result was {result} and not 0.65"
     def runAll():
-        return
         TestPackage.brake_pressure()
         TestPackage.accelerator_pedal_position()
         TestPackage.steering_angle()
