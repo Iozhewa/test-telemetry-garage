@@ -223,3 +223,53 @@ def test_manifold_absolute_pressure():
     result = parse_manifold_absolute_pressure(testBytes)
     print(f"Brake Pressure: {round(result, 2)} bar")
     assert round(result) == 4.0, f"Result was {round(result, 2)} and not ~4"
+
+def parse_camshaft_position(data:bytes) -> float:
+    """
+    Camshaft Position Parser (for CAM)
+    Expects _ bytes. Returns cylinder identification (?).
+    https://autoditex.com/page/camshaft-position-sensor-cmp-12-1.html
+    
+    Verify against ECU datasheet
+    """
+    raw = data[0]
+    return raw  # conversion requirements unknown
+def test_camshaft_position():
+    testBytes = bytes([1, 0])
+    result = parse_camshaft_position(testBytes)
+    print(f"Camshaft Position: Cylinder {result}")
+    assert result == 1, f"Result was {result} and not 1"
+
+def parse_crankshaft_position(data:bytes) -> float:
+    """
+    Crankshaft Position Parser (for CRANK)
+    Expects _ bytes. Returns position of crankshaft (?).
+    https://autoditex.com/page/crankshaft-position-sensor-ckp-11-1.html
+    
+    Verify against ECU datasheet
+    """
+    raw = data[0]
+    return raw  # conversion requirements unknown
+def test_crankshaft_position():
+    testBytes = bytes([2, 0])
+    result = parse_crankshaft_position(testBytes)
+    print(f"Crankshaft Position: {result}")
+    assert result == 2, f"Result was {result} and not 2"
+
+def parse_knock(data:bytes) -> float:
+    """
+    Knock Parser (for KNOCK)
+    Expects _ bytes. Returns detonation frequency (6 kHz to 15 kHz) in radians per second
+    https://autoditex.com/page/knock-sensor-ks-18-1.html
+
+    Verify against ECU datasheet
+    """
+    raw = data[0]
+    toRadiansPerSec = lambda kiloHertz: 1000*(kiloHertz/(2*3.14159))
+    standard = toRadiansPerSec(raw)
+    return standard
+def test_knock():
+    testBytes = bytes([6, 15])
+    result = parse_knock(testBytes)
+    print(f"Detonation Frequency: {round(result, 2)} radians per second")
+    assert round(result, 2) == round(6000/(2*3.14159), 2), f"Result was {result} and not ~{round(6000/(2*3.14159), 2)}"
