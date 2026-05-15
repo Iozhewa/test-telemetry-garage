@@ -118,14 +118,10 @@ def dump_functional_code(functions:set[tuple[str]]) -> None:
     try:
         with open(parser_draft, 'w') as obj:
             testFunctions = []
-            from time import sleep as ts
-            ts(1.0)
             for i, (parser, tester) in enumerate(functions):
                 obj.write(parser)
                 obj.write(tester)
                 testFunctions.append(tester[len("def  "):tester.index(':')])
-                print(f"  Uploaded: [{i}/{len(functions)}]")
-                ts(0.5)
             footer = mainCode.format(tests = '\n\t'.join(testFunctions))
             obj.write('\n'+footer)
     except FileNotFoundError:
@@ -133,11 +129,52 @@ def dump_functional_code(functions:set[tuple[str]]) -> None:
     except Exception as e:
         print("parser_factory encountered error:", e)
 
+header:str = '''#!/usr/bin/env python3
+"""
+Sensor translators.
+
+Each function to take CAN message in raw bytes, decoding
+measured values (degrees, kPa, rpm, etc.)
+
+Working with placeholder byte formats until Database CAN
+file is provided (that is, need more ECU info).
+"""
+'''
 def classify_parsers() -> None:
-    #  From a further development perspective, appending functional code without organization sucks
-    #  This is the super-awesome function that formats a parser_product Python file into a parser_module
-    #  that was coded automatically (notice that was done for method [1] of completing Task A)
-    pass
+    """
+    From a further development perspective, appending functional code without organization sucks
+    This is the super-awesome function that formats a parser_product Python file into a parser_module
+    that was coded automatically (notice that was done for method [1] of completing Task A)
+
+    Expects:
+        Non-empty parser_product.py
+    Returns:
+        Nothing
+    Effect:
+        parser_product.py code reorganized into OOP structure
+    """
+    with open(parser_draft, 'r') as reader:
+        lines = obj.readlines()
+    with open(parser_draft, 'w') as writer:
+        obj.write(header)
+        obj.write("class ParsePackage:")
+        for line in lines:
+            #  accepts and reformats parse functions
+            #  pops parse functions
+            pass
+        tests = []
+        obj.write("class TestPackage:")
+        for line in lines:
+            #  accepts and reformats remaining (test) functions
+            #  ignores main code
+            #  adds names of test functions to testFunctions
+            pass
+        obj.write("\tdef runAll():")
+        for test in tests:
+            #  writes a runAll() function to execute all tests
+            pass
+
+        obj.write('''if __name__ == "__main__":\n\tTestPackage.runAll()''')
 
 if __name__ == "__main__":
     print(".\nparser_factory: producing code snippets...")
@@ -153,3 +190,4 @@ if __name__ == "__main__":
     dump_functional_code(func_code)
     print("Functional code dump complete.")
     #classify_parsers()  # probably just a generator, I find it satisfying this way
+    #print("Object Oriented restructure complete.")
