@@ -61,7 +61,7 @@ def filter_connected_sensors(reader:csv.DictReader) -> list[dict[str, str]]:
     """
     Outputs sensor dictionary list to match template f-strings
     Expects:
-        reader: DictReader object from access_sensor_table()
+        reader - DictReader object from access_sensor_table()
     Returns:
         Dictionary of CSV entries where connection cells state 'Yes' or 'Partial'
     """
@@ -77,9 +77,9 @@ def madlib_parser_functions(reader:list[dict[str, str]]) -> set[tuple[str]]:
     To be used in an iterative process of filling in the blanks of the template f-strings
     Once filled, the 'madlibbed parser' is treated as code to be written
     Expects:
-        something
+        reader - Dictionary List from filter_connected_sensors()
     Returns:
-        something
+        Set of code snippets, each a pair of parser and testing functions for a sensor
     """
     functions = set()
     snakecaser = lambda name: name.casefold().replace(' ', '_')
@@ -97,12 +97,8 @@ def madlib_parser_functions(reader:list[dict[str, str]]) -> set[tuple[str]]:
             sensorParser = f"parse_{snakecaser(trimmer(entry["Full Name"]))}"
         )
         functions.add((parser,tester))
-    from time import sleep as ts
-    for function in functions:
-        print(function[0])
-        ts(0.3)
-        print(function[1])
-        ts(0.3)
+    return functions
+
 def dump_functional_code():
     #  From a File Handling perspective, appending functional code without organization is nice and easy
     #  This is the super-awesome function that sees a parser_product Python file get coded automatically
@@ -117,5 +113,11 @@ if __name__ == "__main__":
     sensors = access_sensor_table(sensor_table, linesIgnored=6)
     viable = filter_connected_sensors(sensors)
     func_code = madlib_parser_functions(viable)
+    with open(sensor_table, 'r') as obj:
+        lines = obj.readlines()
+    count = len(lines)-8
+    print(f"Tabled Sensors: {count}")
+    print(f"Connected Sensors: {len(viable)}")
+    print(f"Code Snippets creaed: {len(func_code)}")
     #dump_functional_code(func_code)  # type signature tba
     #classify_parsers()  # probably just a generator, I find it satisfying this way
